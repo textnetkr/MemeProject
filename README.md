@@ -1,5 +1,5 @@
 # 🤖 MemeProject
-밈으로 대답하는 Textual Similarity, Query-Reply Task Model 구현<br><br>
+.밈으로 대답하는 Textual Similarity, Query-Reply Task Model 구현<br><br>
 
 # 👉🏻 model
 유사도 기반 밈 대답 봇 with Gensim Doc2vec & Sentence Transformers<br>
