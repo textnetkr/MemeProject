@@ -13,9 +13,9 @@ src/doc2vec/preprocessing/memebot_d2v.ipynb<br><br>
 ├── README.md<br>
 ├── requirements.txt<br>
 ├── src<br>
-&nbsp│   └── doc2vec<br>
-&nbsp│       └── preprocessing<br>
-&nbsp│           ├── 1.preprocessing.ipynb<br>
-&nbsp│           ├── 2.doc2vec_train.ipynb<br>
-&nbsp│           ├── 3.transform_ref.ipynb<br>
+│   └── doc2vec<br>
+│       └── preprocessing<br>
+│           ├── 1.preprocessing.ipynb<br>
+│           ├── 2.doc2vec_train.ipynb<br>
+│           ├── 3.transform_ref.ipynb<br>
 └──         └── memebot_d2v.ipynb

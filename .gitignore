@@ -6,3 +6,5 @@ src/.ipynb_checkpoints
 src/doc2vec/preprocessing/.ipynb_checkpoints
 src/doc2vec/preprocessing/__pycache__
 src/doc2vec/preprocessing/config.py
+src/sentence_transformers/__pycache__/
+src/sentence_transformers/config.py
