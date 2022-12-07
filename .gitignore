@@ -3,6 +3,9 @@ model
 .pre-commit-config.yaml
 poetry.lock
 pyproject.toml
+.DS_Store
+.python-version
+pyproject.toml.20221205
 .ipynb_checkpoints/
 src/.ipynb_checkpoints
 src/doc2vec/.ipynb_checkpoints
@@ -10,3 +13,5 @@ src/doc2vec/__pycache__
 src/doc2vec/config.py
 src/sentence_transformers/__pycache__/
 src/sentence_transformers/config.py
+src/pytorch/__pycache__/
+src/pytorch/config.py
