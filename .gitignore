@@ -15,3 +15,5 @@ src/sentence_transformers/__pycache__/
 src/sentence_transformers/config.py
 src/pytorch/__pycache__/
 src/pytorch/config.py
+src/comparison/__pycache__/
+src/comparison/config.py
