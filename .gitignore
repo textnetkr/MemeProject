@@ -15,5 +15,8 @@ src/sentence_transformers/__pycache__/
 src/sentence_transformers/config.py
 src/pytorch/__pycache__/
 src/pytorch/config.py
+src/pytorch/config.yml
+src/pytorch/outputs/
 src/comparison/__pycache__/
 src/comparison/config.py
+outputs/
