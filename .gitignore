@@ -17,6 +17,8 @@ src/pytorch/__pycache__/
 src/pytorch/config.py
 src/pytorch/config.yml
 src/pytorch/outputs/
+src/pytorch/wandb/
+src/pytorch/config.yaml
 src/comparison/__pycache__/
 src/comparison/config.py
 outputs/
