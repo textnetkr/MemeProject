@@ -22,3 +22,4 @@ src/pytorch/config.yaml
 src/comparison/__pycache__/
 src/comparison/config.py
 outputs/
+src/pytorch/config.yaml
