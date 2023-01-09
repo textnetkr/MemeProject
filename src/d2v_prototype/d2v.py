@@ -6,60 +6,65 @@ from pshmodule.utils import filemanager as fm
 from soynlp.tokenizer import LTokenizer
 from soynlp.word import WordExtractor
 
-# data load
-df = fm.load(cfg.temp_data)
-df_ref = fm.load(cfg.origin_ref)
-print(f"df : {df.shape}")
-print(f"df_ref : {df_ref.shape}")
 
-# doc2vec load
-model = Doc2Vec.load(cfg.doc2vec_soynlp)
+@st.experimental_singleton
+def get_model():
+    # data load
+    df = fm.load(cfg.temp_data)
+    df_ref = fm.load(cfg.origin_ref)
 
-# ltokenizer setting
-# WordExtractor
-word_extractor = WordExtractor(
-    min_frequency=10,
-    min_cohesion_forward=0.05,
-    min_right_branching_entropy=0.0,
-)
+    # doc2vec load
+    model = Doc2Vec.load(cfg.doc2vec_soynlp)
 
-word_extractor.load(cfg.soynlp)
-w = word_extractor.extract()
+    # ltokenizer setting
+    # WordExtractor
+    word_extractor = WordExtractor(
+        min_frequency=10,
+        min_cohesion_forward=0.05,
+        min_right_branching_entropy=0.0,
+    )
 
-cohesion_score = {word: score.cohesion_forward for word, score in w.items()}
+    word_extractor.load(cfg.soynlp)
+    w = word_extractor.extract()
 
-# 사용자 사전 추가
-with open(cfg.user_dict, "r") as f:
-    user_dict = f.readlines()
-user_dict = [i.replace("\n", "") for i in user_dict]
+    cohesion_score = {w: s.cohesion_forward for w, s in w.items()}
 
-for i in user_dict:
-    cohesion_score[i] = 1.0
+    # 사용자 사전 추가
+    with open(cfg.user_dict, "r") as f:
+        user_dict = f.readlines()
+    user_dict = [i.replace("\n", "") for i in user_dict]
 
-# LTokenizer
-tokenizer = LTokenizer(scores=cohesion_score)
+    for i in user_dict:
+        cohesion_score[i] = 1.0
+
+    # LTokenizer
+    tokenizer = LTokenizer(scores=cohesion_score)
+
+    return df, df_ref, model, tokenizer
 
 
 def main():
+    df, df_ref, model, tokenizer = get_model()
+
     # title
     st.title("doc2vec 유사도 기반 밈봇")
-
+    st.header("")
+    st.header("")
+    st.header("")
     # image
     image = Image.open("bot.png")
     st.image(
         image,
         caption=None,
-        width=100,
+        width=50,
         use_column_width=None,
         clamp=False,
         channels="RGB",
         output_format="auto",
     )
-    st.header("")
-
     # input text
     input = st.text_input(
-        label=" ",
+        label="",
         placeholder="대춘이에게 말을 걸어주세요!",
     )
     print(f"input : {input}")
