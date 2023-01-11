@@ -71,30 +71,14 @@ def main():
         )
         st.markdown(page_bg_img, unsafe_allow_html=True)
 
-    set_background("bg.png")
+    set_background("bg1.png")
 
     # title
     st.header("")
     st.header("")
     st.header("")
     st.header("")
-    st.header("")
-    st.header("")
-    st.header("")
-    st.title("밈 중독 대춘이를 만나보세요!")
-
-    # image
-    # 너굴 이미지
-    image = Image.open("bot.png")
-    st.image(
-        image,
-        caption=None,
-        width=20,
-        use_column_width=None,
-        clamp=False,
-        channels="RGB",
-        output_format="auto",
-    )
+    st.header("밈 모범 맛집 대춘이를 만나보세요 (별이 다섯 개 ★★★★★)")
 
     # 정렬
     mystyle = """
@@ -113,10 +97,21 @@ def main():
 
     # 대춘이
     with c1:
-        st.header("")
         con1 = st.container()
         con1.caption("🤖 대춘이")
-        con1.info("대춘이에게 말을 걸어주세요!")
+        # image
+        image = Image.open("daechoon.png")
+        st.image(
+            image,
+            caption=None,
+            width=150,
+            use_column_width=None,
+            clamp=False,
+            channels="RGB",
+            output_format="auto",
+        )
+        con2 = st.container()
+        con2.info("대춘이에게 말을 걸어주세요!")
 
     # My Utterance
     with c22:
@@ -141,8 +136,8 @@ def main():
             result = str(temp_ref.iloc[0]["meme"])
 
             # output
-            con2 = st.container()
-            con2.caption("🤖 대춘이")
+            con3 = st.container()
+            con3.caption("🤖 대춘이")
             st.info(str(result.strip()))
 
 
