@@ -130,6 +130,7 @@ def main():
             )
             result_docs = df.u.iloc[int(return_docs[0][0])]
             print(f"유사 문장 : {result_docs}")
+            print(f"유사도 : {return_docs[0][1]}")
 
             temp_ref = df_ref[df_ref.u.values == result_docs["u"]]
             temp_ref = temp_ref.sample(frac=1).reset_index(drop=True)
