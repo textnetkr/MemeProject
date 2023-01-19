@@ -71,7 +71,7 @@ def main():
         )
         st.markdown(page_bg_img, unsafe_allow_html=True)
 
-    set_background("bg1.png")
+    set_background("bg.png")
 
     # title
     st.header("")
@@ -80,7 +80,7 @@ def main():
     st.header("")
     st.header("밈 모범 맛집 대춘이를 만나보세요 (별이 다섯 개 ★★★★★)")
 
-    # 정렬
+    # align
     mystyle = """
     <style>
         p {
