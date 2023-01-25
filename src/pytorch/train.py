@@ -1,8 +1,8 @@
 import hydra
 import numpy as np
-import wandb
 from dataloader import load
-from datasets import load_metric
+import evaluate
+import wandb
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -39,15 +39,30 @@ def main(cfg):
 
     # metrics
     def compute_metrics(eval_preds):
-        metric = load_metric(cfg.METRICS.metric_name)
-        logits, labels = eval_preds
-        predictions = np.argmax(logits, axis=-1)
+        precision_metric = evaluate.load(cfg.METRICS.metric_name)
 
-        return metric.compute(
-            predictions=predictions,
-            references=labels,
+        logits, labels = eval_preds
+        pred = np.argmax(logits, axis=-1)
+
+        labels = [np.argmax(i, axis=-1) for i in labels]
+
+        results = precision_metric.compute(
+            references=pred,
+            predictions=labels,
             average=cfg.METRICS.average,
         )
+        return results
+
+        # metric = load_metric(cfg.METRICS.metric_name)
+        # print(f"metric : {metric}")
+        # logits, labels = eval_preds
+        # predictions = np.argmax(logits, axis=-1)
+
+        # return metric.compute(
+        #     predictions=predictions,
+        #     references=labels,
+        #     average=cfg.METRICS.average,
+        # )
 
     # train
     trainer = Trainer(
