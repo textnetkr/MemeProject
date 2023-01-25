@@ -10,6 +10,7 @@ logging.set_verbosity(logging.ERROR)
 def load(
     tokenizer,
     seq_len,
+    num_classes,
     train_data_path: str,
     eval_data_path: Optional[str] = None,
     train_test_split: Optional[float] = None,
@@ -27,16 +28,10 @@ def load(
             truncation=True,
             return_tensors="np",
         )
-        label = np.zeros((len(e["label"]), 1524))
-        print(f"label : {label}")
-        for i, c in enumerate(e["label"]):
-            for j in c:
-                label[i, j] = 1
-
+        label = np.zeros((len(e["label"]), num_classes))
+        for i, j in enumerate(e["label"]):
+            label[i, j] = 1
         tokenized["labels"] = label
-
-        # label = [int(l) for l in sample["label"]]
-        # tokenized["labels"] = label
 
         return tokenized
 

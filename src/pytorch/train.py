@@ -3,7 +3,6 @@ import numpy as np
 import wandb
 from dataloader import load
 from datasets import load_metric
-from pshmodule.utils import filemanager as fm
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -35,7 +34,7 @@ def main(cfg):
     # model
     model = AutoModelForSequenceClassification.from_pretrained(
         cfg.MODEL.name,
-        num_labels=fm.load(cfg.DATASETS.train_data_path)["label"].iloc[-1],
+        num_labels=cfg.DATASETS.num_classes,
     )
 
     # metrics
