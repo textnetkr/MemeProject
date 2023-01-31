@@ -9,7 +9,6 @@ logging.set_verbosity(logging.ERROR)
 def load(
     tokenizer,
     seq_len,
-    num_classes,
     train_data_path: str,
     eval_data_path: Optional[str] = None,
     train_test_split: Optional[float] = None,

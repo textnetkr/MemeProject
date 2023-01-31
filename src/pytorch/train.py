@@ -34,7 +34,7 @@ def main(cfg):
     # model
     model = AutoModelForSequenceClassification.from_pretrained(
         cfg.MODEL.name,
-        num_labels=cfg.DATASETS.num_classes,
+        num_labels=cfg.MODEL.num_classes,
     )
 
     # metrics
