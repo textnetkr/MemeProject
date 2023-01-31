@@ -1,7 +1,6 @@
 from os.path import abspath, splitext
 from typing import Optional
 
-import numpy as np
 from datasets import load_dataset, logging
 
 logging.set_verbosity(logging.ERROR)
@@ -28,10 +27,7 @@ def load(
             truncation=True,
             return_tensors="np",
         )
-        label = np.zeros((len(e["label"]), num_classes))
-        for i, j in enumerate(e["label"]):
-            label[i, j] = 1
-        tokenized["labels"] = label
+        tokenized["labels"] = e["label"]
 
         return tokenized
 

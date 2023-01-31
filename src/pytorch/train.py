@@ -38,12 +38,14 @@ def main(cfg):
     )
 
     # metrics
-    def compute_metrics(eval_preds):
-        precision_metric = evaluate.load(cfg.METRICS.metric_name)
+    precision_metric = evaluate.load(cfg.METRICS.metric_name)
 
+    def compute_metrics(eval_preds):
         logits, labels = eval_preds
+
         pred = np.argmax(logits, axis=-1)
-        labels = np.argmax(labels, axis=-1)
+        print(f"pred : {pred}")
+        print(f"labels : {labels}")
 
         results = precision_metric.compute(
             references=pred,
