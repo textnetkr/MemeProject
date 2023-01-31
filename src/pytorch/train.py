@@ -43,8 +43,7 @@ def main(cfg):
 
         logits, labels = eval_preds
         pred = np.argmax(logits, axis=-1)
-
-        labels = [np.argmax(i, axis=-1) for i in labels]
+        labels = np.argmax(labels, axis=-1)
 
         results = precision_metric.compute(
             references=pred,
@@ -52,17 +51,6 @@ def main(cfg):
             average=cfg.METRICS.average,
         )
         return results
-
-        # metric = load_metric(cfg.METRICS.metric_name)
-        # print(f"metric : {metric}")
-        # logits, labels = eval_preds
-        # predictions = np.argmax(logits, axis=-1)
-
-        # return metric.compute(
-        #     predictions=predictions,
-        #     references=labels,
-        #     average=cfg.METRICS.average,
-        # )
 
     # train
     trainer = Trainer(
