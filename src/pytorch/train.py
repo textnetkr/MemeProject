@@ -3,6 +3,7 @@ import numpy as np
 from dataloader import load
 import evaluate
 import wandb
+from sklearn.utils.class_weight import compute_class_weight
 import torch
 from torch import nn
 from transformers import (
@@ -12,6 +13,8 @@ from transformers import (
     TrainingArguments,
     default_data_collator,
 )
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 @hydra.main(config_path="./", config_name="config")
@@ -26,12 +29,12 @@ def main(cfg):
         **cfg.TRAININGS,
     )
 
-    # wandb
-    wandb.init(
-        project=cfg.ETC.project,
-        entity=cfg.ETC.entity,
-        name=cfg.ETC.name,
-    )
+    # # wandb
+    # wandb.init(
+    #     project=cfg.ETC.project,
+    #     entity=cfg.ETC.entity,
+    #     name=cfg.ETC.name,
+    # )
 
     # model
     model = AutoModelForSequenceClassification.from_pretrained(
@@ -57,6 +60,15 @@ def main(cfg):
         return results
 
     # trainer
+    class_weights = compute_class_weight(
+        "balanced",
+        classes=np.unique(train_dataset["labels"]),
+        y=np.array(train_dataset["labels"]),
+    )
+    print(f"classes : {np.unique(train_dataset['labels'])}")
+    print(f"y : {np.array(train_dataset['labels'])}")
+    print(f"class_weights : {len(class_weights)}")
+
     class CustomTrainer(Trainer):
         def compute_loss(self, model, inputs, return_outputs=False):
             labels = inputs.get("labels")
@@ -66,11 +78,15 @@ def main(cfg):
             logits = outputs.get("logits")
 
             # compute custom loss
-            loss_fct = nn.CrossEntropyLoss(weight=torch.tensor())
+            loss_fct = nn.CrossEntropyLoss(
+                weight=torch.tensor(
+                    class_weights,
+                    dtype=torch.float,
+                ).to(device)
+            )
             loss = loss_fct(
                 logits.view(-1, self.model.config.num_labels), labels.view(-1)
             )
-
             return (loss, outputs) if return_outputs else loss
 
     trainer = CustomTrainer(
