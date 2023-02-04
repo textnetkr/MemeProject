@@ -66,7 +66,7 @@ def main(cfg):
         y=np.array(train_dataset["labels"]),
     )
     print(f"classes : {np.unique(train_dataset['labels'])}")
-    print(f"y : {np.array(train_dataset['labels'])}")
+    print(f"yy : {np.array(train_dataset['labels'])}")
     print(f"class_weights : {len(class_weights)}")
 
     class CustomTrainer(Trainer):
