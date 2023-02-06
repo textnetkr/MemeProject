@@ -29,17 +29,11 @@ def main(cfg):
         **cfg.TRAININGS,
     )
 
-    # # wandb
-    # wandb.init(
-    #     project=cfg.ETC.project,
-    #     entity=cfg.ETC.entity,
-    #     name=cfg.ETC.name,
-    # )
-
-    # model
-    model = AutoModelForSequenceClassification.from_pretrained(
-        cfg.MODEL.name,
-        num_labels=cfg.MODEL.num_classes,
+    # wandb
+    wandb.init(
+        project=cfg.ETC.project,
+        entity=cfg.ETC.entity,
+        name=cfg.ETC.name,
     )
 
     # metrics
@@ -59,16 +53,19 @@ def main(cfg):
         )
         return results
 
-    # trainer
     class_weights = compute_class_weight(
         "balanced",
-        classes=np.unique(train_dataset["labels"]),
-        y=np.array(train_dataset["labels"]),
+        classes=np.unique(train_dataset["labels"] + eval_dataset["labels"]),
+        y=np.array(train_dataset["labels"] + eval_dataset["labels"]),
     )
-    print(f"classes : {np.unique(train_dataset['labels'])}")
-    print(f"yy : {np.array(train_dataset['labels'])}")
-    print(f"class_weights : {len(class_weights)}")
 
+    # model
+    model = AutoModelForSequenceClassification.from_pretrained(
+        cfg.MODEL.name,
+        num_labels=cfg.MODEL.num_classes,
+    )
+
+    # trainer
     class CustomTrainer(Trainer):
         def compute_loss(self, model, inputs, return_outputs=False):
             labels = inputs.get("labels")
@@ -97,15 +94,6 @@ def main(cfg):
         data_collator=default_data_collator,
         compute_metrics=compute_metrics,
     )
-
-    # trainer = Trainer(
-    #     model=model,
-    #     args=args,
-    #     train_dataset=train_dataset,
-    #     eval_dataset=eval_dataset,
-    #     data_collator=default_data_collator,
-    #     compute_metrics=compute_metrics,
-    # )
 
     trainer.train()
 
