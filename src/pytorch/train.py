@@ -3,9 +3,7 @@ import numpy as np
 from dataloader import load
 import evaluate
 import wandb
-from sklearn.utils.class_weight import compute_class_weight
 import torch
-from torch import nn
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -14,6 +12,9 @@ from transformers import (
     default_data_collator,
 )
 
+# from torch import nn
+# from sklearn.utils.class_weight import compute_class_weight
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -21,6 +22,12 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 def main(cfg):
     # tokenizer
     tokenizer = AutoTokenizer.from_pretrained(cfg.MODEL.name)
+
+    # model
+    model = AutoModelForSequenceClassification.from_pretrained(
+        cfg.MODEL.name,
+        num_labels=cfg.MODEL.num_classes,
+    )
 
     # data loder
     train_dataset, eval_dataset = load(tokenizer=tokenizer, **cfg.DATASETS)
@@ -53,40 +60,43 @@ def main(cfg):
         )
         return results
 
-    class_weights = compute_class_weight(
-        "balanced",
-        classes=np.unique(train_dataset["labels"] + eval_dataset["labels"]),
-        y=np.array(train_dataset["labels"] + eval_dataset["labels"]),
-    )
+    # # trainer
+    # class_weights = compute_class_weight(
+    #     "balanced",
+    #     classes=np.unique(train_dataset["labels"] + eval_dataset["labels"]),
+    #     y=np.array(train_dataset["labels"] + eval_dataset["labels"]),
+    # )
+    # class CustomTrainer(Trainer):
+    #     def compute_loss(self, model, inputs, return_outputs=False):
+    #         labels = inputs.get("labels")
 
-    # model
-    model = AutoModelForSequenceClassification.from_pretrained(
-        cfg.MODEL.name,
-        num_labels=cfg.MODEL.num_classes,
-    )
+    #         # forward pass
+    #         outputs = model(**inputs)
+    #         logits = outputs.get("logits")
 
-    # trainer
-    class CustomTrainer(Trainer):
-        def compute_loss(self, model, inputs, return_outputs=False):
-            labels = inputs.get("labels")
+    #         # compute custom loss
+    #         loss_fct = nn.CrossEntropyLoss(
+    #             weight=torch.tensor(
+    #                 class_weights,
+    #                 dtype=torch.float,
+    #             ).to(device)
+    #         )
+    #         loss = loss_fct(
+    #             logits.view(-1, self.model.config.num_labels),
+    #             labels.view(-1),
+    #         )
+    #         return (loss, outputs) if return_outputs else loss
 
-            # forward pass
-            outputs = model(**inputs)
-            logits = outputs.get("logits")
+    # trainer = CustomTrainer(
+    #     model=model,
+    #     args=args,
+    #     train_dataset=train_dataset,
+    #     eval_dataset=eval_dataset,
+    #     data_collator=default_data_collator,
+    #     compute_metrics=compute_metrics,
+    # )
 
-            # compute custom loss
-            loss_fct = nn.CrossEntropyLoss(
-                weight=torch.tensor(
-                    class_weights,
-                    dtype=torch.float,
-                ).to(device)
-            )
-            loss = loss_fct(
-                logits.view(-1, self.model.config.num_labels), labels.view(-1)
-            )
-            return (loss, outputs) if return_outputs else loss
-
-    trainer = CustomTrainer(
+    trainer = Trainer(
         model=model,
         args=args,
         train_dataset=train_dataset,
