@@ -1,4 +1,6 @@
 import hydra
+from pshmodule.utils import filemanager as fm
+import numpy as np
 import torch
 from transformers import (
     AutoModelForSequenceClassification,
@@ -16,13 +18,25 @@ def main(cfg):
     # model
     model = AutoModelForSequenceClassification.from_pretrained(
         cfg.PATH.save_dir,
-        num_labels=cfg.DATASETS.num_classes,
+        num_labels=cfg.MODEL.num_classes,
     )
     model.eval().cuda()
     print("model loading done!")
 
     # predict
-    sentence = "오늘 날씨가 너무 좋은데??"
+    # df = fm.load(cfg.PATH.origin_class120_ref)
+    df = fm.load(cfg.PATH.origin_class153_ref)
+    df_label = fm.load(cfg.PATH.label)
+
+    sentence = ["말 좀 착하게 하라고",
+        "더 넓은 곳에서 살고 싶다",
+        "너가 빨래 해놔",
+        "너 리얼 별로",
+        "스쿼트 인생 기록 찍어야지",
+        "말 좀 착하게 하라고",
+        "더 넓은 곳에서 살고 싶다",
+        "부자되고 싶다 리얼",
+    ]
 
     data = tokenizer(
         sentence,
@@ -32,19 +46,23 @@ def main(cfg):
         return_tensors="pt",
     )
     with torch.no_grad():
-        data = {k: v.cuda() for k, v in data.items()}
-        outputs = model(**data)
+        print("--------------------------------------------------------")
+        for i in sentence:
+            # output
+            data = {k: v.cuda() for k, v in data.items()}
+            outputs = model(**data)
+        
+            predict = np.argmax(outputs.logits[0].cpu().numpy())
 
-        print(f"predict : {outputs.logits[0]}")
-        # predict = np.argmax(outputs.logits[0].cpu().numpy())
-        # print(f"predict : {predict}")
-
-        # meme extract
-        # df = fm.load(cfg.PATH.origin_class_ref)
-        # df_ref = df[df.g_num.values == outputs]
-        # temp_ref = df_ref[df_ref.u.values == i[1]['u']]
-        # print(df_ref["u"].iloc[0])
-
+            # meme extract
+            df_ref = df[df.label.values == int(predict)]
+            temp_ref = df_ref.sample(frac=1).reset_index(drop=True)
+            print(f"🤗 대길이 : {i}")
+            print(f"분류 : {df_label[df_label.index.values == int(predict)]}")
+            print(f"유사 문장 : {temp_ref.iloc[0]['u']}")
+            print(f"🦝 대춘이 : {temp_ref.iloc[0]['meme']}")
+            print(" ")
+        print("--------------------------------------------------------")
 
 if __name__ == "__main__":
     main()
