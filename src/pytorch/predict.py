@@ -59,7 +59,7 @@ def main(cfg):
             # meme extract
             df_ref = df[df.label.values == int(predict)]
             temp_ref = df_ref.sample(frac=1).reset_index(drop=True)
-            print(f"🤗 대길이 : {i}")dd
+            print(f"🤗 대길이 : {i}")
             # print(f"분류 : {df_label[df_label.index.values == int(predict)]}")
             # print(f"유사 문장 : {temp_ref.iloc[0]['u']}")
             print(f"🦝 대춘이 : {temp_ref.iloc[0]['meme']}")
