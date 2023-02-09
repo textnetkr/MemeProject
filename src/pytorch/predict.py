@@ -24,11 +24,10 @@ def main(cfg):
     print("model loading done!")
 
     # predict
-    # df = fm.load(cfg.PATH.origin_class120_ref)
-    df = fm.load(cfg.PATH.origin_class153_ref)
-    df_label = fm.load(cfg.PATH.label)
+    df = fm.load(cfg.PATH.origin_class120_ref)
 
-    sentence = ["말 좀 착하게 하라고",
+    sentence = [
+        "말 좀 착하게 하라고",
         "더 넓은 곳에서 살고 싶다",
         "너가 빨래 해놔",
         "너 리얼 별로",
@@ -38,31 +37,32 @@ def main(cfg):
         "부자되고 싶다 리얼",
     ]
 
-    data = tokenizer(
-        sentence,
-        max_length=cfg.DATASETS.seq_len,
-        padding="max_length",
-        truncation=True,
-        return_tensors="pt",
-    )
     with torch.no_grad():
         print("--------------------------------------------------------")
         for i in sentence:
+            # tokenizer
+            data = tokenizer(
+                i,
+                max_length=cfg.DATASETS.seq_len,
+                padding="max_length",
+                truncation=True,
+                return_tensors="pt",
+            )
+
             # output
             data = {k: v.cuda() for k, v in data.items()}
             outputs = model(**data)
-        
+
             predict = np.argmax(outputs.logits[0].cpu().numpy())
 
             # meme extract
             df_ref = df[df.label.values == int(predict)]
             temp_ref = df_ref.sample(frac=1).reset_index(drop=True)
             print(f"🤗 대길이 : {i}")
-            print(f"분류 : {df_label[df_label.index.values == int(predict)]}")
-            print(f"유사 문장 : {temp_ref.iloc[0]['u']}")
             print(f"🦝 대춘이 : {temp_ref.iloc[0]['meme']}")
             print(" ")
         print("--------------------------------------------------------")
+
 
 if __name__ == "__main__":
     main()
