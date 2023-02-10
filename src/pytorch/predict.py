@@ -25,7 +25,6 @@ def main(cfg):
 
     # predict
     df = fm.load(cfg.PATH.origin_class120_ref)
-    df_label = fm.load(cfg.PATH.under_label)
 
     sentence = [
         "말 좀 착하게 하라고",
@@ -60,8 +59,6 @@ def main(cfg):
             df_ref = df[df.label.values == int(predict)]
             temp_ref = df_ref.sample(frac=1).reset_index(drop=True)
             print(f"🤗 대길이 : {i}")
-            # print(f"분류 : {df_label[df_label.index.values == int(predict)]}")
-            # print(f"유사 문장 : {temp_ref.iloc[0]['u']}")
             print(f"🦝 대춘이 : {temp_ref.iloc[0]['meme']}")
             print(" ")
         print("--------------------------------------------------------")
