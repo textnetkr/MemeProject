@@ -84,6 +84,7 @@ def load(
     def _tokenize_function(e):
         tokenized = dict()
 
+        print(f"e : {e}")
         tokenized = tokenizer(
             e["content"],
             max_length=seq_len,
@@ -91,7 +92,6 @@ def load(
             truncation=True,
             return_tensors="np",
         )
-        print(f"e : {e}")
         tokenized["labels"] = e["label"]
 
         return tokenized
@@ -119,13 +119,11 @@ def load(
         is_eval = True
 
     # data
-    print(f"datafiles : {datafiles}")
     data = load_dataset(
         extention.replace(".", ""),
         data_files=datafiles,
         split=train_test_split,
     )
-    print(f"data : {data}")
 
     if shuffle_seed is not None:
         data = data.shuffle(seed=shuffle_seed)
