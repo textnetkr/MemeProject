@@ -16,10 +16,12 @@ from sklearn.model_selection import train_test_split
 def main(cfg):
     # data load
     df = pd.read_csv(cfg.PATH.dataset, sep="\t")
-    # 2 미만 제외
+
+    # 값 두 개 미만 제외
     row_notna_count = df.notna().sum(axis=1)
     row_notna_count.plot.hist(bins=row_notna_count.max())
     df = df[row_notna_count >= 2]
+
     # train, test set
     df_train, df_test = train_test_split(df, test_size=0.1, random_state=42)
     print(len(df_train), len(df_test))

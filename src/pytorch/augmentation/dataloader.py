@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 from os.path import abspath, splitext
 from datasets import load_dataset
 from typing import Optional
+import pandas as pd
 
 style_map = {
     "formal": "문어체",
@@ -48,19 +49,22 @@ class TextStyleTransferDataset(Dataset):
         # print(f"text2 : {text2}")
         text1 = row[0]
         text2 = row[1]
-
         target_style = row.index[1]
         target_style_name = style_map[target_style]
 
         encoder_text = f"{text1} [{target_style_name} 문체 변환]"
         decoder_text = f"{text2}{self.tokenizer.eos_token}"
         model_inputs = self.tokenizer(
-            encoder_text, max_length=self.max_length, truncation=True
+            encoder_text,
+            max_length=self.max_length,
+            truncation=True,
         )
 
         with self.tokenizer.as_target_tokenizer():
             labels = self.tokenizer(
-                decoder_text, max_length=self.max_length, truncation=True
+                decoder_text,
+                max_length=self.max_length,
+                truncation=True,
             )
         model_inputs["labels"] = labels["input_ids"]
         del model_inputs["token_type_ids"]
@@ -76,10 +80,34 @@ def load(
     train_test_split: Optional[float] = None,
     worker: int = 1,
     batch_size: int = 1000,
-    shuffle_seed: Optional[int] = None,
+    # shuffle_seed: Optional[int] = None,
 ):
     def _tokenize_function(e):
         tokenized = dict()
+
+        temp = []
+        temp.append(e)
+        df = pd.DataFrame(temp)
+
+        text1 = df["formal"].iloc[0][0]
+        row_sample = df.sample()
+        print(f"row_sample : {row_sample}")
+        print(row_sample.columns)
+        text2 = row_sample[0]
+
+        print(f"text1 : {text1}")
+        print(f"text2 : {text2}")
+        print("-" * 100)
+
+        # row_sample = row.dropna().sample(2)
+        # text2 = row_sample[1]
+        # print(f"text1 : {text1}")
+        # print(f"text2 : {text2}")
+        # target_style = row.index[1]
+        # target_style_name = style_map[target_style]
+
+        # encoder_text = f"{text1} [{target_style_name} 문체 변환]"
+        # decoder_text = f"{text2}{self.tokenizer.eos_token}"
 
         tokenized = tokenizer(
             e["content"],
@@ -88,7 +116,6 @@ def load(
             truncation=True,
             return_tensors="np",
         )
-        print(f"e : {e}")
         tokenized["labels"] = e["label"]
 
         return tokenized
@@ -104,7 +131,6 @@ def load(
         ), "Only one of eval_data_path and train_test_split must be entered."
         datafiles["test"] = abspath(eval_data_path)
         is_eval = True
-
     if train_test_split is not None:
         assert (
             0.0 < train_test_split < 1.0
@@ -116,21 +142,21 @@ def load(
         }
         is_eval = True
 
+    # data
     data = load_dataset(
         extention.replace(".", ""),
         data_files=datafiles,
         split=train_test_split,
     )
-
-    if shuffle_seed is not None:
-        data = data.shuffle(seed=shuffle_seed)
+    # if shuffle_seed is not None:
+    #     data = data.shuffle(seed=shuffle_seed)
 
     data = data.map(
         _tokenize_function,
         batched=True,
         batch_size=batch_size,
         num_proc=worker,
-        remove_columns=data["train"].column_names,
+        # remove_columns=data["train"].column_names,
     )
 
     return data["train"], (data["test"] if is_eval else None)
