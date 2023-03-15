@@ -16,7 +16,7 @@ def get_model():
     df_ref = fm.load(cfg.origin_ref)
 
     # doc2vec load
-    model = Doc2Vec.load(cfg.doc2vec_soynlp)
+    model = Doc2Vec.load(cfg.soynlp)
 
     # ltokenizer setting
     # WordExtractor
