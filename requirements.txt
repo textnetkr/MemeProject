@@ -1,0 +1,13 @@
+pandas==1.5.1
+numpy==1.23.5
+pshmodule==0.1.12
+hydra-core==1.0.0
+swifter
+tqdm
+gensim
+konlpy==0.6.0
+git+https://github.com/ssut/py-hanspell.git
+
+sentence-transformers
+datasets
+torch==1.13.0
