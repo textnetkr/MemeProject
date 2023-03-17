@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 from os.path import abspath, splitext
 from datasets import load_dataset
 from typing import Optional
+import pandas as pd
 
 style_map = {
     "formal": "문어체",
@@ -79,20 +80,43 @@ def load(
     train_test_split: Optional[float] = None,
     worker: int = 1,
     batch_size: int = 1000,
-    shuffle_seed: Optional[int] = None,
+    # shuffle_seed: Optional[int] = None,
 ):
     def _tokenize_function(e):
         tokenized = dict()
 
-        print(f"e : {e}")
+        temp = []
+        temp.append(e)
+        df = pd.DataFrame(temp)
+
+        text1 = df["formal"].iloc[0][0]
+        row_sample = df.sample(axis=1)
+        row = row_sample[row_sample.columns]
+        text2 = row.iloc[0][0][0]
+
+        target_style = row.columns[0]
+        target_style_name = style_map[target_style]
+
+        encoder_text = f"{text1} [{target_style_name} 문체 변환]"
+        decoder_text = f"{text2}{tokenizer.eos_token}"
+
         tokenized = tokenizer(
-            e["content"],
+            encoder_text,
             max_length=seq_len,
             padding="max_length",
             truncation=True,
             return_tensors="np",
         )
-        tokenized["labels"] = e["label"]
+
+        label = tokenizer(
+            decoder_text,
+            max_length=seq_len,
+            padding="max_length",
+            truncation=True,
+            return_tensors="np",
+        )
+        del tokenized["token_type_ids"]
+        tokenized["labels"] = label["input_ids"]
 
         return tokenized
 
@@ -124,9 +148,6 @@ def load(
         data_files=datafiles,
         split=train_test_split,
     )
-
-    if shuffle_seed is not None:
-        data = data.shuffle(seed=shuffle_seed)
 
     data = data.map(
         _tokenize_function,
