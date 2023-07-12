@@ -1,9 +1,10 @@
 import json
+import time
 import numpy as np
 import hydra
-import torch
+from tqdm import tqdm
 import pandas as pd
-from transformers import AutoTokenizer, AutoModel
+from sentence_transformers import SentenceTransformer
 
 
 @hydra.main(config_path="./", config_name="config")
@@ -17,46 +18,42 @@ def main(cfg):
         data = pd.DataFrame(data)
         return data
 
-    data = data_load(cfg.PATH.ref_data)
-    # 100,000건 씩 쪼개서
-    print(f"data shape : {data.shape}")
-    sentences = data.u.tolist()[100001:]
+    df = data_load(cfg.PATH.ref_data)
+    print(df.shape)
 
     # Load model from HuggingFace Hub
-    tokenizer = AutoTokenizer.from_pretrained(cfg.MODEL.name)
-    model = AutoModel.from_pretrained(cfg.MODEL.name)
+    model = SentenceTransformer(cfg.MODEL.name)
 
-    # Tokenize sentences
-    sent_encoded = tokenizer(
-        sentences,
-        padding=True,
-        max_length=512,
-        truncation=True,
-        return_tensors="pt",
-    )
+    # 100,000건 씩 쪼개서 embedding
+    result = []
+    count = 100000
+    start = time.time()
+    chunks = [df[i : i + count] for i in range(0, df.shape[0], count)]
 
-    # Compute token embeddings
-    with torch.no_grad():
-        output = model(**sent_encoded)
+    for i, chunk in tqdm(enumerate(chunks)):
+        sentences = chunk.u.tolist()
+        print(f"{i}번째")
+        print(f"문장 길이 : {len(sentences)}")
 
-    # Mean Pooling - Take attention mask into account for correct averaging
-    def mean_pooling(model_output, attention_mask):
-        token_emb = model_output[
-            0
-        ]  # First element of model_output contains all token embeddings
-        input_mask_expand = (
-            attention_mask.unsqueeze(-1).expand(token_emb.size()).float()
-        )
-        return torch.sum(token_emb * input_mask_expand, 1) / torch.clamp(
-            input_mask_expand.sum(1),
-            min=1e-9,
-        )
+        embeddings = model.encode(sentences)
+        result.append(embeddings.tolist())
+        print(f"embeddings : {embeddings[:3]}")
 
-    # Perform pooling. In this case, mean pooling.
-    embeddings = mean_pooling(output, sent_encoded["attention_mask"])
-    print(f"embeddings : {embeddings[:3]}")
-    ref_emb = np.array(embeddings)
-    np.save(cfg.PATH.ref_emb2, ref_emb)
+        # time taken
+        ckpt = time.time()
+        print(f"걸린 시간 : {time.strftime('%Y-%m-%d %H:%M:%S')}, {ckpt-start}")
+
+        end = time.time()
+        print(f"종료 시간 : {time.strftime('%Y-%m-%d %H:%M:%S')}, {end-start}")
+        print("save start")
+
+        # tensor to list
+        ref_result = np.array(sum(result, []))
+        print(len(ref_result))
+        print(ref_result)
+        np.save(cfg.PATH.ref_emb + f"_{i+1}", ref_result)
+        print("save done")
+        result = []
 
 
 if __name__ == "__main__":
